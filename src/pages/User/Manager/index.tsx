@@ -1,21 +1,15 @@
-import {addRule, removeRule, rule, updateRule} from '@/services/ant-design-pro/api';
-import {PlusOutlined} from '@ant-design/icons';
-import type {ActionType, ProColumns, ProDescriptionsItemProps} from '@ant-design/pro-components';
+import { PlusOutlined } from '@ant-design/icons';
+import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
-  FooterToolbar,
   ModalForm,
   PageContainer,
-  ProDescriptions,
   ProFormText,
-  ProFormTextArea,
   ProTable,
 } from '@ant-design/pro-components';
-import {FormattedMessage, useIntl} from '@umijs/max';
-import {Button, Drawer, Input, message} from 'antd';
-import React, {useRef, useState} from 'react';
-import type {FormValueType} from './components/UpdateForm';
-import UpdateForm from './components/UpdateForm';
-import {deleteUserRemoveId, getUserPage, postUserSave} from "@/services/notification-admin/userController";
+import { FormattedMessage, useIntl } from '@umijs/max';
+import { Button, message, Form } from 'antd';
+import React, { useRef, useState } from 'react';
+import { deleteUserRemoveId, getUserId, getUserPage, postUserSave } from "@/services/notification-admin/userController";
 
 const handleGetPage = async (param: API.getUserPageParams) => {
   const res = await getUserPage(param);
@@ -32,6 +26,16 @@ const handleGetPage = async (param: API.getUserPageParams) => {
     success: true,
     total: 0
   }
+}
+
+const handleGetInfo = async (id: number) => {
+  if (id) {
+    const res = await getUserId({ id: id });
+    if (res.data) {
+      return res.data;
+    }
+  }
+  return {}
 }
 
 /**
@@ -61,30 +65,27 @@ const handleSave = async (data: API.UserSaveDTO) => {
  *  Delete node
  * @zh-CN 删除节点
  *
- * @param selectedRows
+ * @param selectedRow
  */
-const handleRemove = async (selectedRows: API.UserVO[]) => {
-  const hide = message.loading('正在删除');
-  if (!selectedRows) return true;
-  try {
-    selectedRows.
-    await deleteUserRemoveId();
-    hide();
-    message.success('Deleted successfully and will refresh soon');
+const handleRemove = async (selectedRow: API.UserVO) => {
+  if (!selectedRow) {
     return true;
-  } catch (error) {
-    hide();
-    message.error('Delete failed, please try again');
-    return false;
   }
+  const res = await deleteUserRemoveId({ id: selectedRow.id } as API.deleteUserRemoveIdParams);
+  if (res.code === 200) {
+    message.success(res.msg)
+  } else {
+    message.error(res.msg)
+  }
+  return true;
 };
 
-const TableList: React.FC = () => {
+const UserManagerList: React.FC = () => {
   /**
    * @en-US Pop-up window of new window
    * @zh-CN 新建窗口的弹窗
    *  */
-  const [createModalOpen, handleModalOpen] = useState<boolean>(false);
+  const [modalOpen, handleModalOpen] = useState<boolean>(false);
   /**
    * @en-US The pop-up window of the distribution update window
    * @zh-CN 分布更新窗口的弹窗
@@ -102,6 +103,29 @@ const TableList: React.FC = () => {
    * @zh-CN 国际化配置
    * */
   const intl = useIntl();
+
+  // 添加一个表单数据状态
+  const [formData, setFormData] = useState<API.UserVO>();
+
+  const [form] = Form.useForm();
+
+  // 添加一个处理新建按钮点击的函数
+  const handleAdd = () => {
+    form.resetFields();
+    setCurrentRow(undefined);
+    setFormData(undefined);
+    // 确保状态更新后再打开模态框
+    setTimeout(() => {
+      handleModalOpen(true);
+    }, 0);
+  };
+
+  // 添加一个处理编辑按钮点击的函数
+  const handleEdit = (record: API.UserVO) => {
+    form.resetFields();
+    setCurrentRow(record);
+    handleModalOpen(true);
+  };
 
   const columns: ProColumns<API.UserVO>[] = [
     {
@@ -125,116 +149,44 @@ const TableList: React.FC = () => {
       dataIndex: 'username',
     },
     {
+      title: '头像',
+      dataIndex: 'avatar',
+      search: false
+    },
+    {
+      title: '手机号',
+      dataIndex: 'phone',
+    },
+    {
+      title: '邮箱',
+      dataIndex: 'email',
+      search: false
+    },
+    {
       title: '创建时间',
       dataIndex: 'createTime',
-      // valueType: 'dateTime',
+      valueType: 'dateTime'
     },
     {
       title: '更新时间',
       dataIndex: 'updateTime',
-      // valueType: 'dateTime',
+      search: false
     },
-    // {
-    //   title: (
-    //     <FormattedMessage
-    //       id="pages.searchTable.titleCallNo"
-    //       defaultMessage="Number of service calls"
-    //     />
-    //   ),
-    //   dataIndex: 'callNo',
-    //   sorter: true,
-    //   hideInForm: true,
-    //   renderText: (val: string) =>
-    //     `${val}${intl.formatMessage({
-    //       id: 'pages.searchTable.tenThousand',
-    //       defaultMessage: ' 万 ',
-    //     })}`,
-    // },
-    // {
-    //   title: <FormattedMessage id="pages.searchTable.titleStatus" defaultMessage="Status"/>,
-    //   dataIndex: 'status',
-    //   hideInForm: true,
-    //   valueEnum: {
-    //     0: {
-    //       text: (
-    //         <FormattedMessage
-    //           id="pages.searchTable.nameStatus.default"
-    //           defaultMessage="Shut down"
-    //         />
-    //       ),
-    //       status: 'Default',
-    //     },
-    //     1: {
-    //       text: (
-    //         <FormattedMessage id="pages.searchTable.nameStatus.running" defaultMessage="Running"/>
-    //       ),
-    //       status: 'Processing',
-    //     },
-    //     2: {
-    //       text: (
-    //         <FormattedMessage id="pages.searchTable.nameStatus.online" defaultMessage="Online"/>
-    //       ),
-    //       status: 'Success',
-    //     },
-    //     3: {
-    //       text: (
-    //         <FormattedMessage
-    //           id="pages.searchTable.nameStatus.abnormal"
-    //           defaultMessage="Abnormal"
-    //         />
-    //       ),
-    //       status: 'Error',
-    //     },
-    //   },
-    // },
-    // {
-    //   title: (
-    //     <FormattedMessage
-    //       id="pages.searchTable.titleUpdatedAt"
-    //       defaultMessage="Last scheduled time"
-    //     />
-    //   ),
-    //   sorter: true,
-    //   dataIndex: 'updatedAt',
-    //   valueType: 'dateTime',
-    //   renderFormItem: (item, {defaultRender, ...rest}, form) => {
-    //     const status = form.getFieldValue('status');
-    //     if (`${status}` === '0') {
-    //       return false;
-    //     }
-    //     if (`${status}` === '3') {
-    //       return (
-    //         <Input
-    //           {...rest}
-    //           placeholder={intl.formatMessage({
-    //             id: 'pages.searchTable.exception',
-    //             defaultMessage: 'Please enter the reason for the exception!',
-    //           })}
-    //         />
-    //       );
-    //     }
-    //     return defaultRender(item);
-    //   },
-    // },
     {
-      title: <FormattedMessage id="pages.searchTable.titleOption" defaultMessage="Operating"/>,
+      title: <FormattedMessage id="pages.searchTable.titleOption" defaultMessage="Operating" />,
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
         <a
           key="config"
-          onClick={() => {
-            handleUpdateModalOpen(true);
-            setCurrentRow(record);
-          }}
+          onClick={() => handleEdit(record)}
         >
-          <FormattedMessage id="pages.searchTable.config" defaultMessage="Configuration"/>
+          编辑
         </a>,
-        <a key="subscribeAlert" href="https://procomponents.ant.design/">
-          <FormattedMessage
-            id="pages.searchTable.subscribeAlert"
-            defaultMessage="Subscribe to alerts"
-          />
+        <a key="subscribeAlert" onClick={() => {
+          handleRemove(record);
+        }}>
+          删除
         </a>,
       ],
     },
@@ -242,11 +194,8 @@ const TableList: React.FC = () => {
 
   return (
     <PageContainer>
-      <ProTable<API.RuleListItem, API.PageParams>
-        headerTitle={intl.formatMessage({
-          id: 'pages.searchTable.title',
-          defaultMessage: 'Enquiry form',
-        })}
+      <ProTable<API.UserVO, API.getUserPageParams>
+        headerTitle="查询用户"
         actionRef={actionRef}
         rowKey="id"
         search={{
@@ -256,141 +205,87 @@ const TableList: React.FC = () => {
           <Button
             type="primary"
             key="primary"
-            onClick={() => {
-              handleModalOpen(true);
-            }}
+            onClick={handleAdd}
           >
-            <PlusOutlined/> <FormattedMessage id="pages.searchTable.new" defaultMessage="New"/>
+            <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="New" />
           </Button>,
         ]}
         request={handleGetPage}
         columns={columns}
-        rowSelection={{
-          onChange: (_, selectedRows) => {
-            setSelectedRows(selectedRows);
-          },
-        }}
       />
-      {selectedRowsState?.length > 0 && (
-        <FooterToolbar
-          extra={
-            <div>
-              <FormattedMessage id="pages.searchTable.chosen" defaultMessage="Chosen"/>{' '}
-              <a style={{fontWeight: 600}}>{selectedRowsState.length}</a>{' '}
-              <FormattedMessage id="pages.searchTable.item" defaultMessage="项"/>
-              &nbsp;&nbsp;
-              <span>
-                <FormattedMessage
-                  id="pages.searchTable.totalServiceCalls"
-                  defaultMessage="Total number of service calls"
-                />{' '}
-                {selectedRowsState.reduce((pre, item) => pre + item.callNo!, 0)}{' '}
-                <FormattedMessage id="pages.searchTable.tenThousand" defaultMessage="万"/>
-              </span>
-            </div>
-          }
-        >
-          <Button
-            onClick={async () => {
-              await handleRemove(selectedRowsState);
-              setSelectedRows([]);
-              actionRef.current?.reloadAndRest?.();
-            }}
-          >
-            <FormattedMessage
-              id="pages.searchTable.batchDeletion"
-              defaultMessage="Batch deletion"
-            />
-          </Button>
-          <Button type="primary">
-            <FormattedMessage
-              id="pages.searchTable.batchApproval"
-              defaultMessage="Batch approval"
-            />
-          </Button>
-        </FooterToolbar>
-      )}
       <ModalForm
-        title={intl.formatMessage({
-          id: 'pages.searchTable.createForm.newRule',
-          defaultMessage: 'New rule',
-        })}
+        form={form}
+        title={currentRow?.id ? "编辑用户" : "新建用户"}
         width="400px"
-        open={createModalOpen}
-        onOpenChange={handleModalOpen}
+        open={modalOpen}
+        modalProps={{
+          destroyOnClose: true,
+          afterClose: () => {
+            form.resetFields();
+            setFormData(undefined);
+            setCurrentRow(undefined);
+          }
+        }}
+        onOpenChange={(visible) => {
+          handleModalOpen(visible);
+          if (!visible) {
+            form.resetFields();
+            setFormData(undefined);
+            setCurrentRow(undefined);
+          }
+          if (visible && currentRow?.id) {
+            handleGetInfo(currentRow.id)
+              .then((data) => {
+                if (data) {
+                  form.setFieldsValue(data);
+                  setFormData(data);
+                }
+              });
+          }
+        }}
         onFinish={async (value) => {
-          const success = await handleSave(value as API.RuleListItem);
+          const success = await handleSave({
+            ...value,
+            id: currentRow?.id
+          } as API.UserSaveDTO);
           if (success) {
             handleModalOpen(false);
+            setFormData(undefined);
+            setCurrentRow(undefined);
             if (actionRef.current) {
               actionRef.current?.reload();
             }
           }
+          return success;
         }}
       >
         <ProFormText
           rules={[
             {
               required: true,
-              message: (
-                <FormattedMessage
-                  id="pages.searchTable.ruleName"
-                  defaultMessage="Rule name is required"
-                />
-              ),
+              message: "用户名不能为空",
             },
           ]}
+          label="用户名"
           width="md"
-          name="name"
+          name="username"
+          tooltip="默认密码：123456"
         />
-        <ProFormTextArea width="md" name="desc"/>
+        <ProFormText
+          rules={[
+            {
+              required: true,
+              message: "手机号不能为空",
+            },
+          ]}
+          label="手机号"
+          width="md"
+          name="phone"
+        />
+        <ProFormText label="邮箱" width="md" name="email" />
       </ModalForm>
-      <UpdateForm
-        onSubmit={async (value) => {
-          const success = await handleSave(value);
-          if (success) {
-            handleUpdateModalOpen(false);
-            setCurrentRow(undefined);
-            if (actionRef.current) {
-              actionRef.current?.reload();
-            }
-          }
-        }}
-        onCancel={() => {
-          handleUpdateModalOpen(false);
-          if (!showDetail) {
-            setCurrentRow(undefined);
-          }
-        }}
-        updateModalOpen={updateModalOpen}
-        values={currentRow || {}}
-      />
-
-      <Drawer
-        width={600}
-        open={showDetail}
-        onClose={() => {
-          setCurrentRow(undefined);
-          setShowDetail(false);
-        }}
-        closable={false}
-      >
-        {currentRow?.username && (
-          <ProDescriptions<API.RuleListItem>
-            column={2}
-            title={currentRow?.username}
-            request={async () => ({
-              data: currentRow || {},
-            })}
-            params={{
-              id: currentRow?.username,
-            }}
-            columns={columns as ProDescriptionsItemProps<API.RuleListItem>[]}
-          />
-        )}
-      </Drawer>
     </PageContainer>
   );
 };
 
-export default TableList;
+export default UserManagerList;

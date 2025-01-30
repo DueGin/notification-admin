@@ -117,6 +117,7 @@ const Login: React.FC = () => {
         message.success(defaultLoginSuccessMessage);
 
         const urlParams = new URL(window.location.href).searchParams;
+        console.log(urlParams)
         history.push(urlParams.get('redirect') || '/');
         return;
       }
@@ -172,7 +173,7 @@ const Login: React.FC = () => {
             <ActionIcons key="icons"/>,
           ]}
           onFinish={async (values) => {
-            await handleSubmit(values as API.LoginParams);
+            await handleSubmit(values as API.LoginDTO);
           }}
         >
           <Tabs

@@ -1,6 +1,7 @@
-﻿import type {RequestOptions} from '@@/plugin-request/request';
-import type {RequestConfig} from '@umijs/max';
-import {message, notification} from 'antd';
+﻿import type { RequestOptions } from '@@/plugin-request/request';
+import type { RequestConfig } from '@umijs/max';
+import { message, notification } from 'antd';
+import { history } from "@umijs/max";
 
 // 错误处理方案： 错误类型
 enum ErrorShowType {
@@ -27,17 +28,17 @@ interface ResponseStructure {
  */
 export const requestConfig: RequestConfig = {
   // baseURL: 'http://localhost:8080',
-  // withCredential: true,
+  withCredential: true,
   // 错误处理： umi@3 的错误处理方案。
   errorConfig: {
     // 错误抛出
     errorThrower: (res) => {
-      const {success, data, errorCode, errorMessage, showType} =
+      const { success, data, errorCode, errorMessage, showType } =
         res as unknown as ResponseStructure;
       if (!success) {
         const error: any = new Error(errorMessage);
         error.name = 'BizError';
-        error.info = {errorCode, errorMessage, showType, data};
+        error.info = { errorCode, errorMessage, showType, data };
         throw error; // 抛出自制的错误
       }
     },
@@ -48,7 +49,7 @@ export const requestConfig: RequestConfig = {
       if (error.name === 'BizError') {
         const errorInfo: ResponseStructure | undefined = error.info;
         if (errorInfo) {
-          const {errorMessage, errorCode} = errorInfo;
+          const { errorMessage, errorCode } = errorInfo;
           switch (errorInfo.showType) {
             case ErrorShowType.SILENT:
               // do nothing
@@ -76,6 +77,11 @@ export const requestConfig: RequestConfig = {
         // Axios 的错误
         // 请求成功发出且服务器也响应了状态码，但状态代码超出了 2xx 的范围
         message.error(`Response status:${error.response.status}`);
+        console.log(error);
+
+        if (error.response.data === 'NO LOGIN') {
+          history.push('/user/login');
+        }
       } else if (error.request) {
         // 请求已经成功发起，但没有收到响应
         // \`error.request\` 在浏览器中是 XMLHttpRequest 的实例，
@@ -95,7 +101,7 @@ export const requestConfig: RequestConfig = {
       config.headers.authorization = localStorage.getItem("token");
       // 拦截请求配置，进行个性化处理。
       // const url = config?.url?.concat('?token = 123');
-      return {...config};
+      return { ...config };
     },
   ],
 
@@ -103,9 +109,14 @@ export const requestConfig: RequestConfig = {
   responseInterceptors: [
     (response) => {
       // 拦截响应数据，进行个性化处理
-      const {data} = response as unknown as ResponseStructure;
+      const { data } = response as unknown as ResponseStructure;
       console.log(response)
       const headers = response.headers;
+
+      if (data === 'NO LOGIN') {
+        history.push('/user/login');
+      }
+
       if (headers && headers.authorization) {
         localStorage.setItem("token", headers.authorization);
       }

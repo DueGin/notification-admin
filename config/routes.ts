@@ -52,10 +52,22 @@ export default [
     component: './TableList',
   },
   {
-    name:'用户管理',
+    name: 'list.user.manager',
     icon: 'table',
-    path:'/user/manager',
+    path: '/user/manager',
     component: './User/Manager'
+  },
+  {
+    name: 'list.channel.manager',
+    icon: 'table',
+    path: '/channel/manager',
+    component: './Channel'
+  },
+  {
+    name: 'list.channel.user.manager',
+    icon: 'table',
+    path: '/channel/user/manager',
+    component: './Channel/User'
   },
   {
     path: '/',

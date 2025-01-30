@@ -21,6 +21,7 @@ declare namespace API {
   type ChannelAuthVO = {
     id?: number;
     channelId?: number;
+    token?: string;
     createTime?: string;
   };
 
@@ -29,24 +30,54 @@ declare namespace API {
     name?: string;
   };
 
+  type ChannelUserSaveDTO = {
+    channelId?: number;
+    userId?: number;
+  };
+
+  type ChannelUserVO = {
+    id?: number;
+    /** 用户ID */
+    userId?: number;
+    /** 用户名 */
+    username?: string;
+    /** 通道ID */
+    channelId?: number;
+    /** 通道名称 */
+    channelName?: string;
+    /** 加入时间 */
+    createTime?: string;
+  };
+
+  type ChannelVO = {
+    createUsername?: string;
+    id?: number;
+    /** 订阅通知名称 */
+    name?: string;
+    /** UUID */
+    uuid?: string;
+    /** 创建人 */
+    createUser?: number;
+    createTime?: string;
+    updateTime?: string;
+  };
+
   type deleteChannelAuthRemoveIdParams = {
-    /** 主键 */
-    id: string;
+    id: number;
   };
 
   type deleteChannelRemoveIdParams = {
     /** 主键 */
-    id: string;
+    id: number;
   };
 
-  type deleteUserChannelRemoveIdParams = {
-    /** 主键 */
-    id: string;
+  type deleteChannelUserRemoveIdParams = {
+    id: number;
   };
 
   type deleteUserRemoveIdParams = {
     /** 主键 */
-    id: string;
+    id: number;
   };
 
   type getChannelAuthListParams = {
@@ -55,44 +86,41 @@ declare namespace API {
 
   type getChannelGetInfoIdParams = {
     /** notification主键 */
-    id: string;
+    id: number;
   };
 
   type getChannelPageParams = {
-    'records[0].id'?: number;
-    /** 订阅通知名称 */
-    'records[0].name'?: string;
-    /** UUID */
-    'records[0].uuid'?: string;
-    /** 创建人 */
-    'records[0].createUser'?: number;
-    'records[0].createTime'?: string;
-    'records[0].updateTime'?: string;
+    'records[0].key'?: any;
     pageNumber?: number;
     pageSize?: number;
     maxPageSize?: number;
     totalPage?: number;
     totalRow?: number;
     optimizeCountQuery?: boolean;
+    uuid?: string;
+    name?: string;
+    createUserId?: number;
   };
 
-  type getUserChannelGetInfoIdParams = {
-    /** userNotification主键 */
-    id: string;
-  };
-
-  type getUserChannelPageParams = {
-    'records[0].id'?: number;
-    /** 用户ID */
-    'records[0].userId'?: number;
-    /** 通道ID */
-    'records[0].channelId'?: number;
+  type getChannelUserPageParams = {
+    'records[0].key'?: any;
+    /** 当前页码。 */
     pageNumber?: number;
+    /** 每页数据数量。 */
     pageSize?: number;
+    /** 每页数据数量最大限制。 */
     maxPageSize?: number;
+    /** 总页数。 */
     totalPage?: number;
+    /** 总数据数量。 */
     totalRow?: number;
+    /** 是否优化分页查询 COUNT 语句。 */
     optimizeCountQuery?: boolean;
+    uuid?: string;
+    channelId?: number;
+    userId?: number;
+    createTimeFrom?: string;
+    createTimeTo?: string;
   };
 
   type getUserIdParams = {
@@ -116,6 +144,40 @@ declare namespace API {
     username: string;
     password: string;
     isRememberMe?: boolean;
+  };
+
+  type PageChannelUserVO = {
+    /** 当前页数据。 */
+    records?: ChannelUserVO[];
+    /** 当前页码。 */
+    pageNumber?: number;
+    /** 每页数据数量。 */
+    pageSize?: number;
+    /** 每页数据数量最大限制。 */
+    maxPageSize?: number;
+    /** 总页数。 */
+    totalPage?: number;
+    /** 总数据数量。 */
+    totalRow?: number;
+    /** 是否优化分页查询 COUNT 语句。 */
+    optimizeCountQuery?: boolean;
+  };
+
+  type PageChannelVO = {
+    /** 当前页数据。 */
+    records?: ChannelVO[];
+    /** 当前页码。 */
+    pageNumber?: number;
+    /** 每页数据数量。 */
+    pageSize?: number;
+    /** 每页数据数量最大限制。 */
+    maxPageSize?: number;
+    /** 总页数。 */
+    totalPage?: number;
+    /** 总数据数量。 */
+    totalRow?: number;
+    /** 是否优化分页查询 COUNT 语句。 */
+    optimizeCountQuery?: boolean;
   };
 
   type PageUser = {
@@ -165,16 +227,52 @@ declare namespace API {
     password?: string;
   };
 
+  type ResultChannelVO = {
+    code?: number;
+    msg?: string;
+    data?: ChannelVO;
+  };
+
   type ResultInteger = {
     code?: number;
     msg?: string;
     data?: number;
   };
 
+  type ResultListChannelAuthVO = {
+    code?: number;
+    msg?: string;
+    data?: ChannelAuthVO[];
+  };
+
+  type ResultListChannelUserVO = {
+    code?: number;
+    msg?: string;
+    data?: ChannelUserVO[];
+  };
+
+  type ResultPageChannelUserVO = {
+    code?: number;
+    msg?: string;
+    data?: PageChannelUserVO;
+  };
+
+  type ResultPageChannelVO = {
+    code?: number;
+    msg?: string;
+    data?: PageChannelVO;
+  };
+
   type ResultPageUserVO = {
     code?: number;
     msg?: string;
     data?: PageUserVO;
+  };
+
+  type ResultString = {
+    code?: number;
+    msg?: string;
+    data?: string;
   };
 
   type ResultUserVO = {
@@ -220,6 +318,8 @@ declare namespace API {
     avatar?: string;
     /** 用户名 */
     username?: string;
+    /** 手机号 */
+    phone?: string;
     /** 邮箱 */
     email?: string;
   };

@@ -138,7 +138,7 @@ export default defineConfig({
     {
       requestLibPath: "import { request } from '@umijs/max'",
       // schemaPath: 'https://gw.alipayobjects.com/os/antfincdn/CA1dOm%2631B/openapi.json',
-      schemaPath: "http://127.0.0.1:4523/export/openapi/3?version=3.0",
+      schemaPath: "http://127.0.0.1:4523/export/openapi/2?version=3.0",
       projectName: 'notification-admin',
     },
   ],
