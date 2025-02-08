@@ -46,12 +46,6 @@ export default [
     ],
   },
   {
-    name: 'list.table-list',
-    icon: 'table',
-    path: '/list',
-    component: './TableList',
-  },
-  {
     name: 'list.user.manager',
     icon: 'table',
     path: '/user/manager',

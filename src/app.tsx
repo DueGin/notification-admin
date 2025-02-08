@@ -1,11 +1,12 @@
-import {Footer, Question, SelectLang, AvatarDropdown, AvatarName} from '@/components';
-import {LinkOutlined} from '@ant-design/icons';
-import {SettingDrawer} from '@ant-design/pro-components';
-import type {RunTimeLayoutConfig} from '@umijs/max';
-import {history, Link} from '@umijs/max';
-import {requestConfig} from './requestConfig';
+import { Footer, Question, SelectLang, AvatarDropdown, AvatarName } from '@/components';
+import { LinkOutlined } from '@ant-design/icons';
+import { SettingDrawer } from '@ant-design/pro-components';
+import type { RunTimeLayoutConfig } from '@umijs/max';
+import { history, Link } from '@umijs/max';
+import { requestConfig } from './requestConfig';
 import React from 'react';
-import {getUserCurrentUser} from "@/services/notification-admin/userController";
+import { getUserCurrentUser } from "@/services/notification-admin/userController";
+import { Avatar } from 'antd';
 
 const isDev = process.env.NODE_ENV === 'development';
 const loginPath = '/user/login';
@@ -31,12 +32,15 @@ export async function getInitialState(): Promise<InitialState> {
 
 // 水印
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
-export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => {
+export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
   return {
-    actionsRender: () => [<Question key="doc"/>, <SelectLang key="SelectLang"/>],
+    actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
     avatarProps: {
-      src: initialState?.loginUser?.avatar,
-      title: <AvatarName/>,
+
+      src: initialState?.loginUser?.username
+        ? <Avatar style={{ backgroundColor: '#fde3cf', color: '#f56a00' }}>{initialState.loginUser.username[0]}</Avatar>
+        : "https://api.r10086.com/%E6%A8%B1%E9%81%93%E9%9A%8F%E6%9C%BA%E5%9B%BE%E7%89%87api%E6%8E%A5%E5%8F%A3.php?%E5%9B%BE%E7%89%87%E7%B3%BB%E5%88%97=%E5%8A%A8%E6%BC%AB%E7%BB%BC%E5%90%882",
+      title: <AvatarName />,
       render: (_, avatarChildren) => {
         return <AvatarDropdown>{avatarChildren}</AvatarDropdown>;
       },
@@ -44,9 +48,9 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
     // waterMarkProps: {
     //   content: initialState?.loginUser?.username,
     // },
-    footerRender: () => <Footer/>,
+    footerRender: () => <Footer />,
     onPageChange: () => {
-      const {location} = history;
+      const { location } = history;
       // 如果没有登录，重定向到 login
       if (!initialState?.loginUser && location.pathname !== loginPath) {
         history.push(loginPath);
@@ -75,7 +79,7 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
     links: isDev
       ? [
         <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
-          <LinkOutlined/>
+          <LinkOutlined />
           <span>OpenAPI 文档</span>
         </Link>,
       ]

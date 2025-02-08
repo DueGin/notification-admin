@@ -1,4 +1,4 @@
-import { PlusOutlined } from '@ant-design/icons';
+import { DeleteTwoTone, PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
     ModalForm,
@@ -144,7 +144,7 @@ const channelUserList: React.FC = () => {
             valueType: 'text',
             hideInTable: true
         },
-        
+
         {
             title: '频道名称',
             dataIndex: 'channelName',
@@ -165,15 +165,13 @@ const channelUserList: React.FC = () => {
             dataIndex: 'option',
             valueType: 'option',
             render: (_, record) => [
-                <a key="subscribeAlert" onClick={() => {
+                <DeleteTwoTone onClick={() => {
                     handleRemove(record).then(() => {
                         if (actionRef.current) {
                             actionRef.current?.reload();
                         }
                     });
-                }}>
-                    删除
-                </a>,
+                }} />
             ],
         },
     ];

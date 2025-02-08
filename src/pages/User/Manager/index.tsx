@@ -1,4 +1,4 @@
-import { PlusOutlined } from '@ant-design/icons';
+import { DeleteTwoTone, EditTwoTone, PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
   ModalForm,
@@ -7,7 +7,7 @@ import {
   ProTable,
 } from '@ant-design/pro-components';
 import { FormattedMessage, useIntl } from '@umijs/max';
-import { Button, message, Form } from 'antd';
+import { Button, message, Form, Avatar } from 'antd';
 import React, { useRef, useState } from 'react';
 import { deleteUserRemoveId, getUserId, getUserPage, postUserSave } from "@/services/notification-admin/userController";
 
@@ -148,11 +148,16 @@ const UserManagerList: React.FC = () => {
       title: '用户名',
       dataIndex: 'username',
     },
-    {
-      title: '头像',
-      dataIndex: 'avatar',
-      search: false
-    },
+    // {
+    //   title: '头像',
+    //   dataIndex: 'avatar',
+    //   search: false,
+    //   render: (dom, entity) => {
+    //     return (
+    //       <Avatar src={entity.avatar} size="large" shape="square" />
+    //     )
+    //   }
+    // },
     {
       title: '手机号',
       dataIndex: 'phone',
@@ -177,17 +182,8 @@ const UserManagerList: React.FC = () => {
       dataIndex: 'option',
       valueType: 'option',
       render: (_, record) => [
-        <a
-          key="config"
-          onClick={() => handleEdit(record)}
-        >
-          编辑
-        </a>,
-        <a key="subscribeAlert" onClick={() => {
-          handleRemove(record);
-        }}>
-          删除
-        </a>,
+        <EditTwoTone onClick={() => handleEdit(record)} />,
+        <DeleteTwoTone onClick={() => handleRemove(record)} />
       ],
     },
   ];

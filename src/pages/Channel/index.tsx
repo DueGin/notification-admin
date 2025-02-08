@@ -1,4 +1,4 @@
-import { PlusOutlined } from '@ant-design/icons';
+import { DeleteTwoTone, EditTwoTone, PlusOutlined } from '@ant-design/icons';
 import type { ActionType, ProColumns, ProDescriptionsItemProps } from '@ant-design/pro-components';
 import {
     ModalForm,
@@ -125,18 +125,18 @@ const channelManagerList: React.FC = () => {
         {
             title: 'UUID',
             dataIndex: 'uuid',
-            render: (dom, entity) => {
-                return (
-                    <a
-                        onClick={() => {
-                            setCurrentRow(entity);
-                            setShowDetail(true);
-                        }}
-                    >
-                        {dom}
-                    </a>
-                );
-            },
+            // render: (dom, entity) => {
+            //     return (
+            //         <a
+            //             onClick={() => {
+            //                 setCurrentRow(entity);
+            //                 setShowDetail(true);
+            //             }}
+            //         >
+            //             {dom}
+            //         </a>
+            //     );
+            // },
         },
         {
             title: '频道名称',
@@ -162,21 +162,14 @@ const channelManagerList: React.FC = () => {
             dataIndex: 'option',
             valueType: 'option',
             render: (_, record) => [
-                <a
-                    key="config"
-                    onClick={() => handleEdit(record)}
-                >
-                    编辑
-                </a>,
-                <a key="subscribeAlert" onClick={() => {
+                <EditTwoTone onClick={() => handleEdit(record)} />,
+                <DeleteTwoTone onClick={() => {
                     handleRemove(record).then(() => {
                         if (actionRef.current) {
                             actionRef.current?.reload();
                         }
                     });
-                }}>
-                    删除
-                </a>,
+                }} />
             ],
         },
     ];
